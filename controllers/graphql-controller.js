@@ -1,6 +1,6 @@
 const _ = require('lodash');
-const {Address,House,User} = require('../models/models');
-var mockData = require('../data/mockdata');
+const {Address,House,User, JobRequest, Worker, JobBooking} = require('../models/models');
+var {users, workers, jobrequests} = require('../data/mockdata');
 var debug = require('debug')('graphqltest:graphql-controller');
 var controller = {
   hello: () => {
@@ -9,15 +9,15 @@ var controller = {
   },
   allUsers: () => {
       debug('running allUsers');
-    return _.values(mockData);
+    return _.values(users);
   },
   user: function ({id}) {
       debug(`running user(${id})`);
-    return mockData[id];
+    return users[id];
   },
   allHouses: () => {
       debug('running allHouses');
-    return _.flatMap(_.values(mockData).map((u) => u.houses()));
+    return _.flatMap(_.values(users).map((u) => u.houses()));
   },
   house: function({id}) {
       debug(`running house(${id})`);
@@ -31,7 +31,7 @@ var controller = {
           telephone: input.telephone,
           email: input.email
       });
-      mockData[user.id] = user;
+      users[user.id] = user;
       return user;
   },
   createHouse: function({input}) {
@@ -58,6 +58,53 @@ var controller = {
       });
       user.addHouse(house);
       return house;
+  },
+  allWorkers: () => {
+      debug('getting all workers');
+      return _.values(workers);
+  },
+  worker: function({id}) {
+      debug(`get worker ${id}`);
+      return workers[id];
+  },
+  allJobRequests: () => {
+      debug('all job requests');
+      return _.values(jobrequests);
+  },
+  openJobRequests: () => {
+      debug('open job requests');
+      return _.values(jobrequests).filter(r => r.open);
+  },
+  createJobRequest: function({input}) {
+      var house = this.house({id: input.houseId});
+      var date = Date.parse(input.date);
+      var req = new JobRequest({
+          id: _.uniqueId('jobrequest_'),
+          house: house,
+          date: date,
+          numberOfHours: input.numberOfHours,
+          open: true
+      });
+      jobrequests[req.id] = req;
+      return req;
+  },
+  bookJob: function({input}) {
+      var reqId = input.jobRequestId;
+      var req = jobrequests[reqId];
+      if (!req || !req.open) {
+          throw Error("invalid req");
+      }
+      var worker = workers[input.workerId];
+      if (!worker) {
+          throw new Error("invalid worker")
+      }
+      req.open = false;
+      var booking = new JobBooking({
+          id: _.uniqueId('jobbooking_'),
+          jobRequest: req,
+          worker: worker
+      });
+      return booking;
   }
 };
 

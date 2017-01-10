@@ -1,10 +1,12 @@
-const {House, User, Address} = require('../models/models');
+const {House, User, Address, Worker, JobRequest} = require('../models/models');
 const faker = require('faker');
 const _ = require('lodash');
 
 faker.locale = 'es_MX';
 
 var users = {};
+var workers = {};
+var jobrequests = {};
 
 _.range(0, 100).map((i) => {
     var card = faker.helpers.createCard();
@@ -24,7 +26,27 @@ _.range(0, 100).map((i) => {
     users[u.id] = u
 });
 
-
+_.range(0, 50).map((i) => {
+    var card = faker.helpers.createCard();
+     var address = new Address({
+        streetA: card.address.streetA,
+        streetB: card.address.streetB,
+        city: card.address.city,
+        state: card.address.state,
+        zip: card.address.zipcode,
+        country: card.address.country
+    });
+    return new Worker({
+        id: faker.random.uuid(),
+        name: card.name,
+        email: card.email,
+        telephone: card.phone,
+        address: address
+    });
+}).forEach((u) => {
+    
+    workers[u.id] = u;
+});
 
 function generateHouse(user) {
     var card = faker.helpers.createCard();
@@ -47,4 +69,35 @@ function generateHouse(user) {
     return house;
 }
 
-module.exports = users;
+var houses = _.flatMap(_.values(users).map(u => u.houses()));
+_.sampleSize(houses, 30).map(h => {
+    var id = _.uniqueId('jobrequest_');
+    var date = faker.date.recent();
+    var req = new JobRequest({
+        id: id,
+        house: h,
+        date: date,
+        numberOfHours: _.random(3, 8),
+        open: false
+    });
+    return req;
+}).forEach(r => jobrequests[r.id] = r);
+
+_.sampleSize(houses, 30).map(h => {
+    var id = _.uniqueId('jobrequest_');
+    var date = faker.date.future();
+    var req = new JobRequest({
+        id: id,
+        house: h,
+        date: date,
+        numberOfHours: _.random(3, 8),
+        open: true
+    });
+    return req;
+}).forEach(r => jobrequests[r.id] = r);
+
+module.exports = {
+    users: users,
+    workers: workers,
+    jobrequests: jobrequests
+};

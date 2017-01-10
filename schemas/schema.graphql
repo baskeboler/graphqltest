@@ -4,11 +4,16 @@ type Query {
     house(id: ID!): House
     allUsers: [User]
     user(id: ID!): User
+    allWorkers: [Worker]
+    allJobRequests: [JobRequest]
+    openJobRequests: [JobRequest]
 }
 
 type Mutation {
     createUser(input: UserInput!): User
     createHouse(input: HouseInput!): House
+    createJobRequest(input: JobRequestInput!): JobRequest
+    bookJob(input: JobBookingInput!): JobBooking
 }
 
 type House {
@@ -35,6 +40,39 @@ type User {
     email: String
     telephone: String
     houses: [House]
+}
+
+type Worker {
+    id: ID!
+    name: String
+    email: String
+    telephone: String
+    address: Address
+}
+
+type JobRequest {
+    id: ID!
+    house: House
+    date: String
+    numberOfHours: Int
+    open: Boolean
+}
+
+input JobRequestInput {
+    houseId: ID!
+    date: String
+    numberOfHours: Int
+}
+
+type JobBooking {
+    id: ID!
+    jobRequest: JobRequest!
+    worker: Worker!
+}
+
+input JobBookingInput {
+    jobRequestId: ID!
+    workerId: ID!
 }
 
 input UserInput {
