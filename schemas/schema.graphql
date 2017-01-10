@@ -1,0 +1,31 @@
+type Query {
+    hello: String
+    allHouses: [House]
+    house(id: ID!): House
+    allUsers: [User]
+    user(id: ID!): User
+}
+
+type House {
+    id: ID!
+    address: Address
+    telephone: String
+    rooms: Int
+    bathrooms: Int
+    user: User!
+}
+
+type Address {
+    streetName: String
+    streetNumber: String
+    city: String
+    country: String
+}
+
+type User {
+    id: ID!
+    name: String
+    email: String
+    telephone: String
+    houses: [House]
+}
