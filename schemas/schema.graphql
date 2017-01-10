@@ -6,6 +6,11 @@ type Query {
     user(id: ID!): User
 }
 
+type Mutation {
+    createUser(input: UserInput!): User
+    createHouse(input: HouseInput!): House
+}
+
 type House {
     id: ID!
     address: Address
@@ -16,10 +21,12 @@ type House {
 }
 
 type Address {
-    streetName: String
-    streetNumber: String
+    streetA: String
+    streetB: String
     city: String
     country: String
+    state: String
+    zip: String
 }
 
 type User {
@@ -28,4 +35,23 @@ type User {
     email: String
     telephone: String
     houses: [House]
+}
+
+input UserInput {
+  name: String
+  email: String
+  telephone: String  
+} 
+
+input HouseInput {
+    streetA: String
+    streetB: String
+    city: String
+    country: String
+    state: String
+    zip: String
+    telephone: String
+    rooms: Int
+    bathrooms: Int
+    userId: ID!
 }
